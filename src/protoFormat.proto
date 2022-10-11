@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package proto;
+
+message requestForDaya{
+    string RFWID =1;
+    string  benchmarkType = 2;
+    string workloadMetric =3;
+    int32  batchUnit =4;
+    int32 batchID= 5;
+    int32 batchSize =6;
+}
+
+message responseForData {
+  string RFWDID =1;
+  int32 LastBatchID =2;
+  repeated double dataRequested =3;
+  double dataAnalytics =4;
+}
+
+
+
+// TO GET THE PROTOC:
+// Get the protoc git: https://github.com/protocolbuffers/protobuf/releases
+// Scroll down, dowload: protoc-21.7-win64.zip 
+// Extract it in a place you want, then go in the bin folder, copy that path
+// Go to edit environemnt variable -> path -> new -> pase the path
+// open a cmd do protoc to see if you got it
+// one you got that: do this command:
+// protoc -I=. --python_out={directory where you want the protoc file} {source of your .proto file}
+// my commanD: protoc -I=. --python_out="C:\Users\Siddh\Documents\Documents\Concordia\10th Semester Fall 2022\Coen 424\Coen424_assignment1\src" protoFormat.proto
+// can also do: protoc -I=. --python_out=. protoFormat.proto
