@@ -1,23 +1,15 @@
 syntax = "proto3";
 
-package proto;
 
-message requestForDaya{
-    string RFWID =1;
-    string  benchmarkType = 2;
-    string workloadMetric =3;
-    int32  batchUnit =4;
-    int32 batchID= 5;
-    int32 batchSize =6;
+message protoRequest{
+  message requestForWorkload {
+    string RFWDID =1;
+    int32 LastBatchID =2;
+    repeated double dataRequested =3;
+    double dataAnalytics =4;
+  }
+  requestForWorkload RFD=1;
 }
-
-message responseForData {
-  string RFWDID =1;
-  int32 LastBatchID =2;
-  repeated double dataRequested =3;
-  double dataAnalytics =4;
-}
-
 
 
 // TO GET THE PROTOC:

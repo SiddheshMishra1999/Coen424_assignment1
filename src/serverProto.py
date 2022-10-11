@@ -1,7 +1,11 @@
+import math
+from telnetlib import OUTMRK
+import numpy as np
+from optparse import Values
+import statistics
 import pandas as pd
 import json
 import protoFormat_pb2 as proto
-from protobuf_to_dict import protobuf_to_dict
 '''
 RFWDID = 1,
 benchmarkType = 'DVD',
@@ -33,15 +37,61 @@ def rightWorkloadMetric(name):
                 print('Invalid Column name')
         return pos
 
+def avgCal(arr):
+    sum = 0.0
+    for i in range(len(arr)):
+        val = arr[i]
+        sum += val
+    avg = sum/len(arr)
+    return avg
+
+def dataAnalyticsCal(name, arr):
+    
+    match name:
+            case 'avg':
+                return avgCal(arr)
+            case 'std':
+                mean = avgCal(arr)
+                sum = 0.0
+                for i in range(len(arr)):
+                    variance = (arr[i] - mean)
+                    varianceSquare = variance * variance
+                    sum += varianceSquare
+                finalVariance = (sum/(len(arr)-1))
+                std = math.sqrt(finalVariance)
+                return std, statistics.stdev(arr), np.std(arr)
+            case 'min':
+                return min(arr)
+            case 'max':
+                return max(arr)
+            case _:
+                sortedArr = sorted(arr)
+                percentileValue, p = name.split("p", 1)
+                intPercentileValue = int(percentileValue)
+                # print(intPercentileValue)
+                # i, j = 0,0
+                # count, percent = 0,0
+                # while(i<intPercentileValue):
+                #     count = 0
+                #     j = 0
+                #     while(j < intPercentileValue):
+                #         if (sortedArr[i] > sortedArr[j]):
+                #             count+=1
+                #         j+= 1
+                #     percent = (count * 100) // (n-1)
+                #     i+=1
+                return np.percentile(sortedArr, intPercentileValue)
+
+
 
 def processDataProto(RFWDID = 1,
 benchmarkType = 'NDBench',
 workloadMetric = 'MemoryUtilization_Average',
-batchUnit = 3,
+batchUnit = 10,
 batchID = 1,
-batchSize = 6,
+batchSize = 3,
 dataType = 'training',
-dataAnalytics = 'avg'):
+dataAnalytics = '90p'):
 
     # Get right file -->  benchmarkType + dataType
     path = f'{benchmarkType}-{dataType}.csv'
@@ -56,7 +106,7 @@ dataAnalytics = 'avg'):
     colName = reqFile.columns[pos]
 
     # Selecting the batches to send data from using correct index
-    realBatchID = batchID - 1
+    realBatchID = batchID -1
 
     # index of first data from the requested batch
     firstData = (realBatchID * batchUnit)
@@ -64,7 +114,7 @@ dataAnalytics = 'avg'):
     # Total number of data points being sent
     totalData = batchSize * batchUnit
     # last index of the requested batches
-    lastData = firstData + totalData
+    lastData = totalData - 1
 
     # Total number of batches sent 
     batchesSent = batchSize - realBatchID
@@ -72,22 +122,34 @@ dataAnalytics = 'avg'):
     # Id of the final Batch sent
     lastBatchID = realBatchID + batchSize
 
-    data = reqFile.iloc[firstData:lastData, pos].to_list()
-    print(data)
+    data = reqFile.loc[firstData:lastData, colName].to_list()
+    # dataArr = [0.00]*totalData
+    # for i in data:
+    #     dataArr.append(data[i])
+    
 
+    # print(data)
+    # print(sorted(data))
+    # print(dataArr)
+    analytics = dataAnalyticsCal(dataAnalytics, data)
+
+    # Write in JSON file
 
     responseJSON = {
-        "RFWDID": id,
+        "RFWDID": '123',
         "LastBatchID": lastBatchID,
         "dataRequested": data,
-        "dataAnalytics": 50.5
+        "dataAnalytics": analytics
 
     }
-    d1 = proto._descriptor_pool
-    d2 = d1.DescriptorPool()
-    d2.setRFWID("123")
+    with open("responseJSON.json", "w") as outfile:
+        json.dump(responseJSON, outfile)
     
-    print(d1)
+    # d1 = proto._descriptor_pool
+    # d2 = d1.DescriptorPool()
+    # d2.setRFWID("123")
+    
+    # print(d1)
    
 
 
