@@ -1,5 +1,4 @@
 import json
-from pydoc import cli
 from socket import *
 from sys import flags
 
@@ -28,29 +27,45 @@ def socketCreatingClient():
 
     if i == 1:
         data = makeJson(a, b, c, d, e, f, g, h)
-        s.send(data.encode('utf-8'))
+        s.send(data.encode('latin-1'))
     else:
         data = makeProto(a, b, c, d, e, f, g, h)
         s.send(data)
     
     # receive files:
-    msg = s.recv(1000000)
-    getResponseFromServer(msg)
-
+    msg = s.recv(1000000000)
+    # print(msg.decode())
+    if i == 1:
+        jsonResponse(msg)
+    else:
+        protoResponse(msg)
 
     print("Connection Broken")
     s.close()
 
 
-def getResponseFromServer(msg):
-    getProto = protoFormat_pb2.responseForWorkload()
-    response = getProto.FromString(msg)
-    binaryRes= response.SerializeToString()
-    stringRes = getProto.FromString(msg)
-    # print(f'Response = {binaryRes} \n type of response = {type(binaryRes)}')
-    with open("../GeneratedFiles/responseproto.bin", "wb") as fd:
-        fd.write(binaryRes)
+def jsonResponse(msg):
+        data = msg.decode('latin-1')
 
+        with open("../GeneratedFiles/responseJSON.json", "w") as outfile:
+            json.dump(data, outfile, indent=4)
+
+        with open("../GeneratedFiles/responseJSON.json", 'r') as f:
+            dataLoad = json.load(f)
+        print(dataLoad)
+
+def protoResponse(msg):
+        getProto = protoFormat_pb2.responseForWorkload()
+        response = getProto.FromString(msg)
+        binaryRes= response.SerializeToString()
+        with open("../GeneratedFiles/responseproto.bin", "wb") as fd:
+            fd.write(binaryRes)
+
+        # To Print the content of the binary file
+        with open("../GeneratedFiles/responseproto.bin", 'rb') as f:
+            read_res = protoFormat_pb2.responseForWorkload()
+            read_res.ParseFromString(f.read())
+            print(read_res)
 
 def clientInput():
     # Getting all inputs from users
@@ -164,9 +179,8 @@ def makeProto(RFWDID,benchMarckType, workLoadMetric, batchUnit, batchID, batchSi
     toProto.dataType = dataType
     toProto.dataAnalytics =dataAnalytics
 
-    protodata = toProto.SerializeToString()
+    protodata = toProto.SerializeToString('latin-1')
     return protodata
-    # print(RFWDID,benchMarckType, workLoadMetric, batchUnit, batchID, batchSize, dataType, dataAnalytics )
 
 
 
@@ -175,13 +189,8 @@ def makeProto(RFWDID,benchMarckType, workLoadMetric, batchUnit, batchID, batchSi
 
 
 if __name__ == '__main__':
-    # chatlog = textBox = None
     socketCreatingClient()
 
-    # To Print the content of the binary file
-    # with open("../GeneratedFiles/responseproto.bin", 'rb') as f:
-    #     read_res = protoFormat_pb2.responseForWorkload()
-    #     read_res.ParseFromString(f.read())
-    # print(read_res)
+
 
 
