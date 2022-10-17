@@ -71,6 +71,10 @@ def parseJsonDataFromClient(clientReq):
     dataType = reqDict['dataType']
     dataAnalytics = reqDict['dataAnalytics']
 
+    # decodedData = json.dumps(requesJSON)
+    with open("../GeneratedFiles/Server/requestJSON.json", "w") as outfile:
+            json.dump(reqDict, outfile, indent=4)
+
     
     
     return idReq, benchmarkType, workloadMetric, batchUnit, batchID, batchSize, dataType, dataAnalytics
@@ -89,6 +93,11 @@ def parseProtoDataFromClient(clientReq):
     batchSize = readData.batchSize
     dataType = readData.dataType
     dataAnalytics = readData.dataAnalytics
+    with open("../GeneratedFiles/Server/requestproto.txt", "w") as fd:
+        fd.write(str(readData))
+    dataP = data.SerializeToString('latin-1')
+    with open("../GeneratedFiles/Server/requestproto.bin", "wb") as f:
+        f.write(dataP)
 
     return idReq, benchmarkType, workloadMetric, batchUnit, batchID, batchSize, dataType, dataAnalytics
 
@@ -125,7 +134,7 @@ def processData(idReq, benchmarkType, workloadMetric, batchUnit, batchID, batchS
     # Getting all the batch data
     firstData, lastData, lastBatchID = batches(batchUnit, batchID, batchSize)
     print(f'BatchUnit = {batchUnit} \n batchID = {batchID} \n batchSize = {batchSize}\n')
-    print(firstData, lastData, lastBatchID)
+    print(f'First Data Point at index: {firstData}\n Last data Point= {lastData}\n Total Data printed = {batchUnit * batchSize}\nLast Batch ID = {lastBatchID}')
     # Getting the correct data 
     data = reqFile.loc[firstData:lastData, colName].to_list()
 
@@ -146,6 +155,8 @@ def makeJSON(idRes, lastBatchID, data, analytics):
 
     }
     responseJson = json.dumps(responseDict)
+    with open("../GeneratedFiles/Server/responseJSON.json", "w") as outfile:
+        json.dump(responseJson, outfile, indent=4)
     encodedRes = responseJson.encode('latin-1')
     return encodedRes
 
@@ -159,13 +170,18 @@ def makeProto(idRes, lastBatchID, data, analytics):
     protoBuf.LastBatchID = lastBatchID
     protoBuf.dataRequested.extend(data)
     protoBuf.dataAnalytics = analytics
-    response = protoBuf.SerializeToString()
+    with open("../GeneratedFiles/Server/responseproto.txt", "w") as d:
+        d.write(str(protoBuf))
+    response = protoBuf.SerializeToString('latin-1')
+
+    with open("../GeneratedFiles/Server/responseproto.bin", "wb") as fd:
+        fd.write(response)
+
     return response
 
 
 # creating a socket 
 def socketCreation():
-    headersize = 10
     
     # declaring the host for the socket 
     host = ''

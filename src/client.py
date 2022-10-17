@@ -1,5 +1,6 @@
 import json
 from socket import *
+import stringprep
 from sys import flags
 
 
@@ -47,22 +48,24 @@ def socketCreatingClient():
 def jsonResponse(msg):
         data = msg.decode('latin-1')
 
-        with open("../GeneratedFiles/responseJSON.json", "w") as outfile:
+        with open("../GeneratedFiles/Client/responseJSON.json", "w") as outfile:
             json.dump(data, outfile, indent=4)
 
-        with open("../GeneratedFiles/responseJSON.json", 'r') as f:
+        with open("../GeneratedFiles/Client/responseJSON.json", 'r') as f:
             dataLoad = json.load(f)
         print(dataLoad)
 
 def protoResponse(msg):
         getProto = protoFormat_pb2.responseForWorkload()
         response = getProto.FromString(msg)
+        with open("../GeneratedFiles/Client/responseproto.txt", "w") as d:
+            d.write(str(response))
         binaryRes= response.SerializeToString()
-        with open("../GeneratedFiles/responseproto.bin", "wb") as fd:
+        with open("../GeneratedFiles/Client/responseproto.bin", "wb") as fd:
             fd.write(binaryRes)
 
         # To Print the content of the binary file
-        with open("../GeneratedFiles/responseproto.bin", 'rb') as f:
+        with open("../GeneratedFiles/Client/responseproto.bin", 'rb') as f:
             read_res = protoFormat_pb2.responseForWorkload()
             read_res.ParseFromString(f.read())
             print(read_res)
@@ -82,8 +85,12 @@ def clientInput():
     else:
         dataAnalyticsP = 0
 
+    # Asking user which type of request you 
     fileTypeIn = pyip.inputNum("Please enter the file type in which you wish to sned and receive the data(enter 1 for JSON or 2 for Binary): \n", min=1, lessThan=3)
- 
+    
+
+
+
     benchMarckType = inputCheckBenchMark(benchMarckTypeIn)
     workLoadMetric = inputCheckWorkLoad(workLoadMetricIn)
     dataType = inputCheckDataType(dataTypeIn)
@@ -166,6 +173,10 @@ def makeJson(RFWDID,benchMarckType, workLoadMetric, batchUnit, batchID, batchSiz
         "dataAnalytics": dataAnalytics
     }
     requestJSON = json.dumps(requesJSON)
+    with open("../GeneratedFiles/Client/requestJSON.json", "w") as outfile:
+            json.dump(requesJSON, outfile, indent=4)
+
+
     return requestJSON
 
 def makeProto(RFWDID,benchMarckType, workLoadMetric, batchUnit, batchID, batchSize, dataType, dataAnalytics):
@@ -178,8 +189,13 @@ def makeProto(RFWDID,benchMarckType, workLoadMetric, batchUnit, batchID, batchSi
     toProto.batchSize = batchSize
     toProto.dataType = dataType
     toProto.dataAnalytics =dataAnalytics
+    with open("../GeneratedFiles/Client/requestproto.txt", "w") as fd:
+        fd.write(str(toProto))
 
     protodata = toProto.SerializeToString('latin-1')
+    with open("../GeneratedFiles/Client/requestproto.bin", "wb") as f:
+        f.write(protodata)
+
     return protodata
 
 
