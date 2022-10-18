@@ -13,15 +13,22 @@ Once the 2 files were ready, I made a TCP socket, connected them and got the dat
 Create 2 terminals (I suggest using split terminal if you are using Visual Studio Code or an editor that has its own terminal)
 On both terminal, cd into the src directory Use: cd src
 Start by running the server.py first by doing: python server.py
-On the server terminal, you should see: <br>
+On the server terminal, you should see:
+
         Socket Successfuly created!
         Socket successfully connected to port 666
         Socket is listening
+
 Only after the server is running, on the second terminal, start the client by: python client.py
 On the client terminal you should see: 
+
         Please enter an ID for your request:
+
 On the server terminal, you should be able to see your client connection as below:
-        Connection received from ('127.0.0.1', 23716) Note. The IP address and port may differ for you
+
+        Connection received from ('127.0.0.1', 23716) 
+        
+        Note. The IP address and port may differ for you
 Now you are set, you can start inputting the data you wish to request from the server.
 
 ## How it works?
