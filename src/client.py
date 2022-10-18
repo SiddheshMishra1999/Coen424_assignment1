@@ -86,7 +86,7 @@ def clientInput():
         dataAnalyticsP = 0
 
     # Asking user which type of request you 
-    fileTypeIn = pyip.inputNum("Please enter the file type in which you wish to sned and receive the data(enter 1 for JSON or 2 for Binary): \n", min=1, lessThan=3)
+    fileTypeIn = pyip.inputNum("Please enter the file type in which you wish to send and receive the data(enter 1 for JSON or 2 for Proto): \n", min=1, lessThan=3)
     
 
 

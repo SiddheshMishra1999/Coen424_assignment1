@@ -122,7 +122,7 @@ def processData(idReq, benchmarkType, workloadMetric, batchUnit, batchID, batchS
     # Get right file -->  benchmarkType + dataType
     path = f'{benchmarkType}-{dataType}.csv'
     # DataUrl = 'https://raw.githubusercontent.com/haniehalipour/Online-Machine-Learning-for-Cloud-Resource-Provisioning-of-Microservice-Backend-Systems/master/Workload%20Data'
-    filePath = f"C:/Users/Siddh/Documents/Documents/Concordia/10th Semester Fall 2022/Coen 424/Coen424_assignment1/CSV_Data/{path}"
+    filePath = f"../CSV_Data/{path}"
     # Get the path to the requested file
     reqFile = pd.read_csv(filePath)
     
