@@ -1,7 +1,10 @@
 import json
+import math
+import os
 from socket import *
 import stringprep
 from sys import flags
+from pathlib import Path
 
 
 import pyinputplus as pyip
@@ -46,29 +49,63 @@ def socketCreatingClient():
 
 
 def jsonResponse(msg):
-        data = msg.decode('latin-1')
+    data = msg.decode('latin-1')
+    responseJson = json.dumps(data)
 
-        with open("../GeneratedFiles/Client/responseJSON.json", "w") as outfile:
-            json.dump(data, outfile, indent=4)
+    path = '../GeneratedFiles/Client/responsejson.json'
+    obj = Path(path)
+    # Check if the file exists and if it does, append the new reponse
+    if(obj.exists()):
 
-        with open("../GeneratedFiles/Client/responseJSON.json", 'r') as f:
-            dataLoad = json.load(f)
-        print(dataLoad)
+        with open(path, "ab+") as outfile:
+            outfile.seek(-1, os.SEEK_END)
+            outfile.truncate()
+            outfile.write((',\n').encode())
+            outfile.write(responseJson.encode())
+            outfile.write(']'.encode())            
+    else:
+        with open(path, "wb+") as outfile:
+            outfile.write('['.encode())
+            outfile.write(responseJson.encode())
+            outfile.write(']'.encode())
+
+
+
+    with open(path) as f:
+        dataLoad = json.load(f)
+    print(dataLoad)
 
 def protoResponse(msg):
-        getProto = protoFormat_pb2.responseForWorkload()
-        response = getProto.FromString(msg)
-        with open("../GeneratedFiles/Client/responseproto.txt", "w") as d:
+    getProto = protoFormat_pb2.responseForWorkload()
+    response = getProto.FromString(msg)
+    path = '../GeneratedFiles/Client/responseproto.txt'
+    obj = Path(path)
+    print(obj.exists())
+    if(obj.exists()):
+        with open(path, "a") as d:
             d.write(str(response))
-        binaryRes= response.SerializeToString()
+        response = getProto.SerializeToString('latin-1')
+
+        with open("../GeneratedFiles/Server/responseproto.bin", "ab") as fd:
+            fd.write(response)
+    
+    else:
+        with open(path, "w") as d:
+            d.write(str(response))
+        response = getProto.SerializeToString('latin-1')
+
+        # with open("../GeneratedFiles/Server/responseproto.bin", "wb") as fd:
+        #     fd.write(response)
+
+        # binaryRes= response.SerializeToString()
         with open("../GeneratedFiles/Client/responseproto.bin", "wb") as fd:
-            fd.write(binaryRes)
+            fd.write(response)
 
         # To Print the content of the binary file
-        with open("../GeneratedFiles/Client/responseproto.bin", 'rb') as f:
-            read_res = protoFormat_pb2.responseForWorkload()
-            read_res.ParseFromString(f.read())
-            print(read_res)
+    with open(path, 'r') as f:
+        read_res  = f.read()
+        f.close()
+        print(read_res)
 
 def clientInput():
     # Getting all inputs from users
@@ -91,14 +128,14 @@ def clientInput():
 
 
 
-    benchMarckType = inputCheckBenchMark(benchMarckTypeIn)
-    workLoadMetric = inputCheckWorkLoad(workLoadMetricIn)
-    dataType = inputCheckDataType(dataTypeIn)
-    dataAnalytics = inputCheckDataAnalytics(dataAnalyticsIn, dataAnalyticsP)
+    benchMarckType = inputCheckBenchMark(math.floor(benchMarckTypeIn))
+    workLoadMetric = inputCheckWorkLoad(math.floor(workLoadMetricIn))
+    dataType = inputCheckDataType(math.floor(dataTypeIn))
+    dataAnalytics = inputCheckDataAnalytics(dataAnalyticsIn, math.floor(dataAnalyticsP))
 
     fileType = inputCheckFileType(fileTypeIn)
 
-    return str(RFWDID),benchMarckType, workLoadMetric, batchUnit, batchID, batchSize, dataType, dataAnalytics, fileTypeIn
+    return str(RFWDID),benchMarckType, workLoadMetric, batchUnit, batchID, batchSize, dataType, dataAnalytics, math.floor(fileTypeIn)
 
 
 def inputCheckBenchMark(benchMarckType):
@@ -173,8 +210,27 @@ def makeJson(RFWDID,benchMarckType, workLoadMetric, batchUnit, batchID, batchSiz
         "dataAnalytics": dataAnalytics
     }
     requestJSON = json.dumps(requesJSON)
-    with open("../GeneratedFiles/Client/requestJSON.json", "w") as outfile:
-            json.dump(requesJSON, outfile, indent=4)
+    # with open("../GeneratedFiles/Client/requestJSON.json", "w") as outfile:
+    #         json.dump(requesJSON, outfile, indent=4)
+    # reqJson = json.dumps(reqDict)
+    path = '../GeneratedFiles/Client/requestjson.json'
+    obj = Path(path)
+    # Check if the file exists and if it does, append the new reponse
+    if(obj.exists()):
+
+        with open(path, "ab+") as outfile:
+            outfile.seek(-1, os.SEEK_END)
+            outfile.truncate()
+            outfile.write((',\n').encode())
+            outfile.write(requestJSON.encode())
+            outfile.write(']'.encode())
+            
+    else:
+        with open(path, "wb+") as outfile:
+            outfile.write('['.encode())
+            outfile.write(requestJSON.encode())
+            outfile.write(']'.encode())
+
 
 
     return requestJSON

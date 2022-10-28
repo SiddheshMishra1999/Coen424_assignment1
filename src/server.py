@@ -1,10 +1,13 @@
 
 import math
+import os
 import socket
+from traceback import print_tb
 import numpy as np
 import pandas as pd
 import json
 import protoFormat_pb2
+from pathlib import Path
 
 def rightWorkloadMetric(name):
         match name:
@@ -58,8 +61,10 @@ def dataAnalyticsCal(name, arr):
 
 # Parse the Json data coming from client
 def parseJsonDataFromClient(clientReq):
+    print(f'type of received data: {type(clientReq)}\n data: {clientReq}')
     decodedData = clientReq.decode('latin-1')
-    reqDict = json.loads(clientReq)
+    print(f'type of decoded data: {type(decodedData)}\n data: {decodedData}')
+    reqDict = json.loads(decodedData)
     idReq = reqDict['RFWDID']
     benchmarkType = reqDict['benchMarckType']
     workloadMetric = reqDict['workLoadMetric']
@@ -69,9 +74,27 @@ def parseJsonDataFromClient(clientReq):
     dataType = reqDict['dataType']
     dataAnalytics = reqDict['dataAnalytics']
 
-    # decodedData = json.dumps(requesJSON)
-    with open("../GeneratedFiles/Server/requestJSON.json", "w") as outfile:
-            json.dump(reqDict, outfile, indent=4)
+
+
+    reqJson = json.dumps(reqDict)
+    path = '../GeneratedFiles/Server/requestjson.json'
+    obj = Path(path)
+    # Check if the file exists and if it does, append the new reponse
+    if(obj.exists()):
+
+        with open(path, "ab+") as outfile:
+            outfile.seek(-1, os.SEEK_END)
+            outfile.truncate()
+            outfile.write((',\n').encode())
+            outfile.write(reqJson.encode())
+            outfile.write(']'.encode())
+            
+    else:
+        with open(path, "wb+") as outfile:
+            outfile.write('['.encode())
+            outfile.write(reqJson.encode())
+            outfile.write(']'.encode())
+
 
     
     
@@ -150,12 +173,28 @@ def makeJSON(idRes, lastBatchID, data, analytics):
         "LastBatchID": lastBatchID,
         "dataRequested": data,
         "dataAnalytics": analytics
-
     }
     responseJson = json.dumps(responseDict)
-    with open("../GeneratedFiles/Server/responseJSON.json", "w") as outfile:
-        json.dump(responseJson, outfile, indent=4)
-    encodedRes = responseJson.encode('latin-1')
+    path = '../GeneratedFiles/Server/responsejson.json'
+    obj = Path(path)
+    # Check if the file exists and if it does, append the new reponse
+    if(obj.exists()):
+
+        with open(path, "ab+") as outfile:
+            outfile.seek(-1, os.SEEK_END)
+            outfile.truncate()
+            outfile.write((',\n').encode())
+            outfile.write(responseJson.encode())
+            outfile.write(']'.encode())
+            
+
+        encodedRes = responseJson.encode('latin-1')
+    else:
+        with open(path, "wb+") as outfile:
+            outfile.write('['.encode())
+            outfile.write(responseJson.encode())
+            outfile.write(']'.encode())
+        encodedRes = responseJson.encode('latin-1')
     return encodedRes
 
 
@@ -168,14 +207,28 @@ def makeProto(idRes, lastBatchID, data, analytics):
     protoBuf.LastBatchID = lastBatchID
     protoBuf.dataRequested.extend(data)
     protoBuf.dataAnalytics = analytics
-    with open("../GeneratedFiles/Server/responseproto.txt", "w") as d:
-        d.write(str(protoBuf))
-    response = protoBuf.SerializeToString('latin-1')
 
-    with open("../GeneratedFiles/Server/responseproto.bin", "wb") as fd:
-        fd.write(response)
+    
+    path = '../GeneratedFiles/Server/responseproto.txt'
+    obj = Path(path)
+    print(obj.exists())
+    if(obj.exists()):
+        with open(path, "a") as d:
+            d.write(str(protoBuf))
+        response = protoBuf.SerializeToString('latin-1')
+
+        with open("../GeneratedFiles/Server/responseproto.bin", "wb") as fd:
+            fd.write(response)
+    
+    else:
+        with open(path, "w") as d:
+            d.write(str(protoBuf))
+        response = protoBuf.SerializeToString('latin-1')
+        with open("../GeneratedFiles/Server/responseproto.bin", "wb") as fd:
+            fd.write(response)
 
     return response
+
 
 
 # creating a socket 
@@ -185,7 +238,7 @@ def socketCreation():
     host = ''
     # declaring the port for the socket 
     port = 666
-    # Making a TXP connection
+    # Making a TCP connection
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print(f"Socket Successfuly created!")
 
