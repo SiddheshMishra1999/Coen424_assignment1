@@ -9,7 +9,7 @@ https://github.com/haniehalipour/Online-Machine-Learning-for-Cloud-Resource-Prov
 I started by creating a server file where I made all the processing logic regarding the aassignment. I then proceeded to create a client.py file where I made all the inputs the user needs to put in the terminal to send the request.
 Once the 2 files were ready, I made a TCP socket, connected them and got the data sending from client to server and back to the client. 
 
-##Usage
+## Usage
 Create 2 terminals (I suggest using split terminal if you are using Visual Studio Code or an editor that has its own terminal)
 On both terminal, cd into the src directory Use: cd src
 Start by running the server.py first by doing: python server.py
@@ -21,7 +21,7 @@ On the server terminal, you should see:
 
 Only after the server is running, on the second terminal, start the client by: python client.py
 On the client terminal you should see: 
-
+        Connected to server on host: localhost and port: 666
         Please enter an ID for your request:
 
 On the server terminal, you should be able to see your client connection as below:
