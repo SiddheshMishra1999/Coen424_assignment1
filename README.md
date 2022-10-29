@@ -29,7 +29,10 @@ On the server terminal, you should be able to see your client connection as belo
         Connection received from ('127.0.0.1', 23716) 
         
         Note. The IP address and port may differ for you
-Now you are set, you can start inputting the data you wish to request from the server.
+Now you are set, you can start inputting the data you wish to request from the server. 
+Redo the client-side steps to re-run the client code. 
+Check the GeneratedFiles directory to make sure all files generated are correct. 
+
 
 ## How it works?
 Once the user has put in all inputs, based on the last input from the user where they choose which format they wish to receive the data, the data is serialzied in either protoco format or JSON format. 
