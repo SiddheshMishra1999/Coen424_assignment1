@@ -37,3 +37,5 @@ Check the GeneratedFiles directory to make sure all files generated are correct.
 ## How it works?
 Once the user has put in all inputs, based on the last input from the user where they choose which format they wish to receive the data, the data is serialzied in either protoco format or JSON format. 
 On the server side, when it receives the data it processes the data and send the requested data back in the same format as the user has requested. The data is also being saved in files from the server side and the client side so the user can view the data being requested and sent from both sides.
+
+Please check out the pdf file with all the extra details about the assignment!
